@@ -279,8 +279,9 @@ void movePlayer(SDL_Event& event)
         break;
     }
     // want the AI to move closer to the player but don't want the player to move for 'S'
-    if (gWorld[newY][newX] == ID_EMPTY || event.key.keysym.scancode == SDL_SCANCODE_S)
-    {
+    // make sure the player can't go out of bounds of screen - can cause memory stomp
+   if (newX >= 0 && newX < TILES_X && newY >= 0 && newY < TILES_Y && (gWorld[newY][newX] == ID_EMPTY || event.key.keysym.scancode == SDL_SCANCODE_S))
+   {
         // if the player presses a valid key and the new space is empty
         gScore++; 
         gameOver = moveAI(); // move ai and set gameover if there are AI left
@@ -288,7 +289,7 @@ void movePlayer(SDL_Event& event)
         gWorld[newY][newX] = ID_PLAYER;
         gPlayerPos.x = newX;
         gPlayerPos.y = newY;
-    }
+   }
 }
 
 bool moveAI()
