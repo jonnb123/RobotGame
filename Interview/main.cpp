@@ -63,6 +63,8 @@ eSpriteIds gWorld[TILES_Y][TILES_X];
 SDL_Point gAIPos[MAX_AI];
 SDL_Point gPlayerPos;
 
+TTF_Font* gFont = nullptr;
+
 void closeSDL();
 void loadSprites();
 void initWorld();
@@ -70,6 +72,8 @@ void movePlayer(SDL_Event& event);
 bool moveAI();
 
 void drawWorld();
+void initFont();
+void closeFont();
 void drawText(std::string text, eDrawType type);
 
 SDL_Texture* loadTexture(const char* filepath, int* w, int* h);
@@ -376,6 +380,21 @@ void drawWorld()
     }
 }
 
+void initFont()
+{
+    gFont = TTF_OpenFont("assets\\Fonts\\Browood-Regular.ttf", 24);
+    if (gFont == nullptr) {
+        std::cerr << "Error opening font: " << TTF_GetError() << std::endl;
+    }
+}
+
+void closeFont() {
+    if (gFont != nullptr) {
+        TTF_CloseFont(gFont);
+        gFont = nullptr;
+    }
+}
+
 void drawText(std::string text, eDrawType type)
 {
     // if display score or lives, append the value
@@ -388,24 +407,26 @@ void drawText(std::string text, eDrawType type)
         text += std::to_string(playerLives);
     }
 
-    // load font (I found a pre-made font online: https://alitdesign.net/product/browood-layered-comic-font/)
-    TTF_Font* font = TTF_OpenFont("assets\\Fonts\\Browood-Regular.ttf", 24);
-    // null check 
-    if (font == nullptr)
-    {
-        std::cerr << "Error opening font: " << TTF_GetError() << std::endl;
-        return;
-    }
+    //// load font (I found a pre-made font online: https://alitdesign.net/product/browood-layered-comic-font/)
+    //TTF_Font* font = TTF_OpenFont("assets\\Fonts\\Browood-Regular.ttf", 24);
+    //// null check 
+    //if (font == nullptr)
+    //{
+    //    std::cerr << "Error opening font: " << TTF_GetError() << std::endl;
+    //    return;
+    //}
+
+    initFont();
 
     // Create color (white)
     const SDL_Color textColour = {255, 255, 255};
 
     // create text surface with null check
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), textColour);
+    SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, text.c_str(), textColour);
     if (textSurface == nullptr)
     {
         std::cerr << "Error creating text surface: " << TTF_GetError() << std::endl;
-        TTF_CloseFont(font);
+        // TTF_CloseFont(font);
         return;
     }
 
@@ -415,7 +436,7 @@ void drawText(std::string text, eDrawType type)
     {
         std::cerr << "Error creating text texture: " << SDL_GetError() << std::endl;
         SDL_FreeSurface(textSurface);
-        TTF_CloseFont(font);
+        // TTF_CloseFont(font);
         return;
     }
     
@@ -446,7 +467,6 @@ void drawText(std::string text, eDrawType type)
     // part of the cleanup process to avoid memory leaks
     SDL_FreeSurface(textSurface);
     SDL_DestroyTexture(textTexture);
-    TTF_CloseFont(font);
 }
 
 SDL_Texture* loadTexture(const char* filepath, int* w, int* h)
@@ -479,5 +499,6 @@ void closeSDL(void)
     SDL_DestroyTexture(gTexMissing);
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyWindow(gWindow);
+    closeFont();
     SDL_Quit();
 }
