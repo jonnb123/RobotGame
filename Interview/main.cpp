@@ -124,6 +124,10 @@ int main(int argc, char* args[])
         // For player input 
         while (SDL_PollEvent(&event))
         {
+            if (event.type == SDL_QUIT)
+            {
+                quitGame = true;
+            }
             if (event.type == SDL_KEYUP)
             {
                 // allow player to quit at any time
